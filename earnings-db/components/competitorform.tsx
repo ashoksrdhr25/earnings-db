@@ -129,6 +129,11 @@ const CompetitorForm = () => {
   // Handle form submission
     const handleFormSubmit = async (e) => {
       e.preventDefault();
+
+    if (!validateForm()) {
+      alert('Please fill in all required fields');
+      return;
+    }
       
     // Create a copy of the state to avoid mutation and filter out empty competitors
     const formattedCompetitors = competitors.filter(comp => 
@@ -237,6 +242,26 @@ const CompetitorForm = () => {
     };
   };
 
+  const validateForm = () => {
+    const errors = {};
+       
+    if (!userInfo.companyDetails.name) {
+      errors['company-name'] = 'Company name is required';
+    }
+    if (!userInfo.industry) {
+      errors['industry'] = 'Industry is required';
+    }
+    if (!competitors.some(c => c.name || c.ticker)) {
+      errors['competitors'] = 'At least one competitor is required';
+    }
+    if (!metricPreferences.financial.length) {
+      errors['metrics-financial'] = 'Select at least one financial metric';
+    }
+     
+    setErrors(errors);
+      return Object.keys(errors).length === 0;
+    };
+
   const handleEmailVerification = async () => {
     if (userInfo.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userInfo.email)) {
       try {
@@ -300,6 +325,62 @@ const CompetitorForm = () => {
 
             {emailVerified && (
               <div className="space-y-6">
+                {/* New Company Details Section */}
+                    <div className="p-4 border rounded-lg space-y-4">
+                    <h3 className="font-medium">Your Company Details</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                    <label className="block text-sm font-medium mb-1">Company Name*</label>
+                    <Input
+                    value={userInfo.companyDetails.name}
+                    onChange={(e) => setUserInfo(prev => ({
+                    ...prev,
+                  companyDetails: {
+                  ...prev.companyDetails,
+                  name: e.target.value
+                }
+                }))}
+                placeholder="Your company name"
+                />
+                </div>
+                <div>
+                <label className="block text-sm font-medium mb-1">Industry*</label>
+                <Select
+                value={userInfo.industry}
+                onValueChange={(value) => setUserInfo(prev => ({
+                ...prev,
+                industry: value
+                }))}
+                >
+              <SelectTrigger>
+              <SelectValue placeholder="Select industry" />
+              </SelectTrigger>
+              <SelectContent>
+              {industries.map((industry) => (
+              <SelectItem key={industry} value={industry}>
+              {industry}
+              </SelectItem>
+              ))}
+              </SelectContent>
+              </Select>
+              </div>
+              <div>
+              <label className="block text-sm font-medium mb-1">Business Description</label>
+              <Textarea
+              value={userInfo.companyDetails.businessDescription}
+              onChange={(e) => setUserInfo(prev => ({
+              ...prev,
+              companyDetails: {
+              ...prev.companyDetails,
+              businessDescription: e.target.value
+              }
+              }))}
+              placeholder="Brief description of your business model and main products/services"
+              />
+              </div>
+              </div>
+              </div>
+
                 <div className="p-4 border rounded-lg space-y-4">
                   <div className="flex justify-between items-center">
                     <h3 className="font-medium">Competitor Tracking</h3>

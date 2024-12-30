@@ -52,7 +52,7 @@ export class AIProcessor {
 
   async analyzeContext(formData) {
     const systemPrompt = `You are a strategic analyst specializing in competitive analysis and earnings interpretation.
-    Your goal is to provide detailed, actionable insights based on company and competitor information.
+    Your goal is to provide detailed, actionable insights based on company and competitor information especially based on latest earnings reports.
     Focus on industry-specific nuances and competitive dynamics.`;
 
     const userPrompt = `Analyze the following company and its competitors:
@@ -60,7 +60,7 @@ export class AIProcessor {
     Industry: ${formData.industry}
     Competitors: ${JSON.stringify(formData.competitors)}
     
-    Provide strategic context for tracking these companies, including:
+    Provide strategic context for tracking these companies and focusing on latest earnings reports and transcripts, including:
     1. Key competitive dynamics
     2. Industry-specific metrics importance
     3. Potential areas of differentiation
