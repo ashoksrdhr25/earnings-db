@@ -39,7 +39,9 @@ const CompetitorForm = () => {
     }
   });
 
-  const [existingTracking, setExistingTracking] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [verifyingEmail, setVerifyingEmail] = useState(false);
+  const [existingTracking, setExistingTracking] = useState<any>(null);
   const [emailVerified, setEmailVerified] = useState(false);
   const [competitors, setCompetitors] = useState([{
     name: '',
@@ -230,17 +232,41 @@ const CompetitorForm = () => {
     }
   };
 
-  const checkExistingTracking = async (email) => {
-    // Mock response
-    return {
-      competitors: [
-        { name: 'Example Corp', ticker: 'EXMP', lastUpdate: '2024-03-15' },
-        { name: 'Test Inc', ticker: 'TEST', lastUpdate: '2024-03-20' }
-      ],
-      sheetsUrl: 'https://docs.google.com/spreadsheets/d/example',
-      docsUrl: 'https://docs.google.com/document/d/example'
+  const checkExistingTracking = async (email: string) => {
+    setVerifyingEmail(true);
+      try {
+       const response = await fetch('/api/verify-email', {
+         method: 'POST',
+         headers: {
+           'Content-Type': 'application/json'
+         },
+          body: JSON.stringify({ email })
+       });
+    
+       const data = await response.json();
+       
+       if (data.success && data.exists) {
+         setUserInfo(prev => ({
+           ...prev,
+           ...data.data.companyDetails
+         }));
+         
+         setCompetitors(data.data.competitors);
+         setMetricPreferences(data.data.metricPreferences);
+         setExistingTracking({
+           competitors: data.data.competitors,
+            ...data.data.documentLinks
+          });
+        }
+        
+        setEmailVerified(true);
+      } catch (error) {
+        console.error('Error checking existing tracking:', error);
+        alert('Error verifying email. Please try again.');
+      } finally {
+       setVerifyingEmail(false);
+    }
     };
-  };
 
   const validateForm = () => {
     const errors = {};
@@ -315,10 +341,19 @@ const CompetitorForm = () => {
                 />
                 <Button 
                   type="button"
-                  onClick={handleEmailVerification}
-                  disabled={!userInfo.email || emailVerified}
-                >
-                  {emailVerified ? <Check className="h-4 w-4" /> : 'Verify'}
+                    onClick={handleEmailVerification}
+                    disabled={!userInfo.email || emailVerified || verifyingEmail}
+                  >
+                  {verifyingEmail ? (
+                  <span className="flex items-center gap-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-500 border-t-white" />
+                  Verifying...
+                  </span>
+                  ) : emailVerified ? (
+                  <Check className="h-4 w-4" />
+                ) : (
+                'Verify'
+                )}
                 </Button>
               </div>
             </div>
@@ -563,29 +598,29 @@ const CompetitorForm = () => {
                   </div>
                 </div>
 
+              {existingTracking?.documentLinks && (
                 <div className="p-4 border rounded-lg space-y-3">
-                  <h3 className="font-medium">Your Tracking Documents</h3>
-                  <div className="space-y-2">
-                    <a 
-                      href={existingTracking.sheetsUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
-                    >
-                      📊 View Financial Metrics Sheet
-                    </a>
-                    <a 
-                      href={existingTracking.docsUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
-                    >
-                      📝 View Analysis Document
-                    </a>
-                  </div>
-                </div>
+                <h3 className="font-medium">Your Tracking Documents</h3>
+                <div className="space-y-2">
+              <a 
+                href={existingTracking.documentLinks.sheetsUrl} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
+              >
+              📊 View Financial Metrics Sheet
+              </a>
+              <a 
+              href={existingTracking.documentLinks.docsUrl} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
+              >
+              📝 View Analysis Document
+              </a>
               </div>
-            )}
+              </div>
+              )}
 
             <div className="space-y-3">
               <Button 

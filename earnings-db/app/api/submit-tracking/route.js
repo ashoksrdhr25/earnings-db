@@ -1,4 +1,5 @@
 import { connectToDatabase } from '@/lib/mongodb';
+import { createTrackingDocs } from '@/lib/google-service';
 import { AIProcessor } from '@/src/AIProcessor';
 
 export async function POST(request) {
@@ -23,7 +24,10 @@ export async function POST(request) {
     const { db } = await connectToDatabase()
     console.log('Connected to database');  
 
-    // 4. Create tracking record
+    // 4.Create Google docs
+    const documentLinks = await createTrackingDocs(userInfo.email);
+
+    // 5. Create tracking record
     const trackingRecord = {
       userId: userInfo.email,
       competitors: competitors.map(comp => ({
@@ -32,6 +36,7 @@ export async function POST(request) {
         status: 'pending'
       })),
       metricPreferences,
+      documentLinks,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -57,6 +62,7 @@ export async function POST(request) {
        success: true,
        message: 'Tracking setup completed',
        trackingId: result.insertedId,
+       documentLinks,
        analysis
     });
 
