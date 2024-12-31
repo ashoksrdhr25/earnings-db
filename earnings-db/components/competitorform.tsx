@@ -1,4 +1,4 @@
-//competitorform.tsx
+//components/CompetitorForm.tsx
 
 "use client";
 
@@ -180,10 +180,6 @@ const CompetitorForm = () => {
         console.error('Response Text:', responseText);
        throw new Error(`Invalid JSON response: ${responseText.substring(0, 100)}...`);
      }
-
-      console.log('Server response:', data);
-      // TODO: handle success in UI
-      console.log('Server response:', data);
      
      if (!response.ok) {
         console.error('Response not OK:', data);
@@ -191,13 +187,7 @@ const CompetitorForm = () => {
      }
      
      alert('Form submitted successfully!');
-     // Clear form after successful submission
-     setCompetitors([{ name: '', ticker: '', domain: '' }]);
-     setMetricPreferences({
-       financial: [],
-       engagement: [],
-       custom: ''
-     });
+
     // Reset form after successful submission
      setCompetitors([{ name: '', ticker: '', domain: '' }]);
      setMetricPreferences({
@@ -302,9 +292,9 @@ const CompetitorForm = () => {
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
-      <Card>
-        <CardHeader>
-          <h2 className="text-2xl font-bold">Quarterly Earnings Tracking Setup</h2>
+    <Card>
+      <CardHeader>
+        <h2 className="text-2xl font-bold">Quarterly Earnings Tracking Setup</h2>
           <p className="text-gray-600">Track up to 10 competitors and receive personalized analysis for your industry</p>
           <div className="mt-4 p-4 bg-gray-50 rounded-lg space-y-2">
             <h3 className="font-medium">How It Works:</h3>
@@ -433,33 +423,35 @@ const CompetitorForm = () => {
                   </div>
 
                   {/* Existing tracked competitors */}
-                  {existingTracking && existingTracking.competitors.length > 0 && (
-                    <div className="space-y-2">
+                  {existingTracking?.competitors?.length > 0 && (
+                      <div className="space-y-2">
                       <h4 className="text-sm font-medium">Currently Tracking:</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {existingTracking.competitors.map((comp, idx) => (
-                          <div key={idx} className="p-3 bg-gray-50 rounded-md flex justify-between items-start">
-                            <div>
-                              <div className="font-medium">{comp.name} ({comp.ticker})</div>
-                              <div className="text-sm text-gray-600">Last updated: {comp.lastUpdate}</div>
-                            </div>
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => {
-                                const newExisting = {
-                                  ...existingTracking,
-                                  competitors: existingTracking.competitors.filter((_, i) => i !== idx)
-                                };
-                                setExistingTracking(newExisting);
-                              }}
-                            >
-                              Remove
-                            </Button>
-                          </div>
-                        ))}
+                    {existingTracking.competitors.map((comp, idx) => (
+                      <div key={idx} className="p-3 bg-gray-50 rounded-md flex justify-between items-start">
+                      <div>
+                      <div className="font-medium">{comp.name} {comp.ticker && `(${comp.ticker})`}</div>
+                      <div className="text-sm text-gray-600">
+                    {comp.lastUpdate ? new Date(comp.lastUpdate).toLocaleDateString() : 'No updates yet'}
                       </div>
-                    </div>
+                      </div>
+                    <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => {
+                      const newExisting = {
+                     ...existingTracking,
+                    competitors: existingTracking.competitors.filter((_, i) => i !== idx)
+                  };
+                  setExistingTracking(newExisting);
+                  }}
+                  >
+                  Remove
+                  </Button>
+                  </div>
+                  ))}
+                  </div>
+                  </div>
                   )}
 
                   {/* New competitors form fields */}

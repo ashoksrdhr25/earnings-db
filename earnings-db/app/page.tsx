@@ -1,4 +1,4 @@
-import CompetitorForm from '@/components/competitorform'
+import CompetitorForm from '@/components/CompetitorForm';
 
 export default function Home() {
   return (
@@ -14,7 +14,7 @@ export default function Home() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto">
+      <main className="max-w-7xl mx-auto">
         <CompetitorForm />
       </main>
     </div>
