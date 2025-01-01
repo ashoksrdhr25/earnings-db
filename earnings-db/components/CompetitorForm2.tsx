@@ -56,15 +56,15 @@ const CompetitorForm = () => {
   const [errors, setErrors] = useState({});
 
   const handleRemoveCompetitor = (index) => {
-    setCompetitors(prevCompetitors => {
-      // If this is the last competitor, just clear its fields
-      if (prevCompetitors.length === 1) {
-        return [{ name: '', ticker: '', domain: '' }];
-      }
-      // Otherwise, remove the competitor at the given index
+   setCompetitors(prevCompetitors => {
+    // If this is the last competitor, just clear its fields
+    if (prevCompetitors.length === 1) {
+      return [{ name: '', ticker: '', domain: '' }];
+     }
+    // Otherwise, remove the competitor at the given index
       return prevCompetitors.filter((_, idx) => idx !== index);
     });
-  };
+    };
 
   // Constants
   const financialMetrics = [
@@ -129,23 +129,23 @@ const CompetitorForm = () => {
   ];
 
   // Handle form submission
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
+    const handleFormSubmit = async (e) => {
+      e.preventDefault();
 
     if (!validateForm()) {
       alert('Please fill in all required fields');
       return;
     }
-
+      
     // Create a copy of the state to avoid mutation and filter out empty competitors
-    const formattedCompetitors = competitors.filter(comp =>
+    const formattedCompetitors = competitors.filter(comp => 
       comp.name.trim() !== '' || comp.ticker.trim() !== '' || comp.domain.trim() !== ''
     );
-
+    
     // Validate that we have at least one competitor with data
     if (formattedCompetitors.length === 0) {
       alert('Please add at least one competitor');
-      return;
+     return;
     }
 
     const payload = {
@@ -157,7 +157,7 @@ const CompetitorForm = () => {
     };
 
     try {
-      const response = await fetch('/api/submit-tracking', {
+        const response = await fetch('/api/submit-tracking', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -165,48 +165,48 @@ const CompetitorForm = () => {
         body: JSON.stringify(payload)
       });
 
-      // Log the raw response
-      const responseText = await response.text();
-      console.log('Response status:', response.status);
-      console.log('Raw response:', responseText);
-      console.log('Request payload:', payload);
-
-      // Try parsing as JSON
-      let data;
-      try {
-        data = JSON.parse(responseText);
-      } catch (e) {
+     // Log the raw response
+     const responseText = await response.text();
+     console.log('Response status:', response.status);
+     console.log('Raw response:', responseText);
+     console.log('Request payload:', payload);
+      
+     // Try parsing as JSON
+     let data;
+     try {
+       data = JSON.parse(responseText);
+     } catch (e) {
         console.error('JSON Parse Error:', e);
         console.error('Response Text:', responseText);
-        throw new Error(`Invalid JSON response: ${responseText.substring(0, 100)}...`);
-      }
-
-      if (!response.ok) {
+       throw new Error(`Invalid JSON response: ${responseText.substring(0, 100)}...`);
+     }
+     
+     if (!response.ok) {
         console.error('Response not OK:', data);
         throw new Error(data.message || 'Submission failed');
-      }
+     }
+     
+     alert('Form submitted successfully!');
 
-      alert('Form submitted successfully!');
-
-      // Reset form after successful submission
-      setCompetitors([{ name: '', ticker: '', domain: '' }]);
-      setMetricPreferences({
-        financial: [],
-        engagement: [],
-        custom: ''
-      });
+    // Reset form after successful submission
+     setCompetitors([{ name: '', ticker: '', domain: '' }]);
+     setMetricPreferences({
+       financial: [],
+       engagement: [],
+       custom: ''
+     });
     } catch (error) {
       console.error('Form submission error:', {
         error: error.message,
         stack: error.stack,
         payload
-      });
-
+        });
+      
       // TODO: handle error in UI
       console.error('Submission error:', error);
       alert('Error submitting form: ' + error.message);
     }
-  };
+  };  
 
   // Handlers
   const handleMetricPreferenceChange = (category, value) => {
@@ -216,7 +216,7 @@ const CompetitorForm = () => {
     }));
 
     if (errors[`metrics-${category}`]) {
-      const newErrors = { ...errors };
+      const newErrors = {...errors};
       delete newErrors[`metrics-${category}`];
       setErrors(newErrors);
     }
@@ -224,43 +224,43 @@ const CompetitorForm = () => {
 
   const checkExistingTracking = async (email: string) => {
     setVerifyingEmail(true);
-    try {
-      const response = await fetch('/api/verify-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email })
-      });
-
-      const data = await response.json();
-
-      if (data.success && data.exists) {
-        setUserInfo(prev => ({
-          ...prev,
-          ...data.data.companyDetails
-        }));
-
-        setCompetitors(data.data.competitors);
-        setMetricPreferences(data.data.metricPreferences);
-        setExistingTracking({
-          competitors: data.data.competitors,
-          ...data.data.documentLinks
-        });
-      }
-
-      setEmailVerified(true);
-    } catch (error) {
-      console.error('Error checking existing tracking:', error);
-      alert('Error verifying email. Please try again.');
-    } finally {
-      setVerifyingEmail(false);
+      try {
+       const response = await fetch('/api/verify-email', {
+         method: 'POST',
+         headers: {
+           'Content-Type': 'application/json'
+         },
+          body: JSON.stringify({ email })
+       });
+    
+       const data = await response.json();
+       
+       if (data.success && data.exists) {
+         setUserInfo(prev => ({
+           ...prev,
+           ...data.data.companyDetails
+         }));
+         
+         setCompetitors(data.data.competitors);
+         setMetricPreferences(data.data.metricPreferences);
+         setExistingTracking({
+           competitors: data.data.competitors,
+            ...data.data.documentLinks
+          });
+        }
+        
+        setEmailVerified(true);
+      } catch (error) {
+        console.error('Error checking existing tracking:', error);
+        alert('Error verifying email. Please try again.');
+      } finally {
+       setVerifyingEmail(false);
     }
-  };
+    };
 
   const validateForm = () => {
     const errors = {};
-
+       
     if (!userInfo.companyDetails.name) {
       errors['company-name'] = 'Company name is required';
     }
@@ -273,10 +273,10 @@ const CompetitorForm = () => {
     if (!metricPreferences.financial.length) {
       errors['metrics-financial'] = 'Select at least one financial metric';
     }
-
+     
     setErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
+      return Object.keys(errors).length === 0;
+    };
 
   const handleEmailVerification = async () => {
     if (userInfo.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userInfo.email)) {
@@ -292,9 +292,9 @@ const CompetitorForm = () => {
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
-      <Card>
-        <CardHeader>
-          <h2 className="text-2xl font-bold">Quarterly Earnings Tracking Setup</h2>
+    <Card>
+      <CardHeader>
+        <h2 className="text-2xl font-bold">Quarterly Earnings Tracking Setup</h2>
           <p className="text-gray-600">Track up to 10 competitors and receive personalized analysis for your industry</p>
           <div className="mt-4 p-4 bg-gray-50 rounded-lg space-y-2">
             <h3 className="font-medium">How It Works:</h3>
@@ -325,25 +325,25 @@ const CompetitorForm = () => {
                 <Input
                   type="email"
                   value={userInfo.email}
-                  onChange={(e) => setUserInfo(prev => ({ ...prev, email: e.target.value }))}
+                  onChange={(e) => setUserInfo(prev => ({...prev, email: e.target.value}))}
                   placeholder="your@email.com"
                   className="flex-1"
                 />
-                <Button
+                <Button 
                   type="button"
-                  onClick={handleEmailVerification}
-                  disabled={!userInfo.email || emailVerified || verifyingEmail}
-                >
+                    onClick={handleEmailVerification}
+                    disabled={!userInfo.email || emailVerified || verifyingEmail}
+                  >
                   {verifyingEmail ? (
-                    <span className="flex items-center gap-2">
-                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-500 border-t-white" />
-                      Verifying...
-                    </span>
+                  <span className="flex items-center gap-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-500 border-t-white" />
+                  Verifying...
+                  </span>
                   ) : emailVerified ? (
-                    <Check className="h-4 w-4" />
-                  ) : (
-                    'Verify'
-                  )}
+                  <Check className="h-4 w-4" />
+                ) : (
+                'Verify'
+                )}
                 </Button>
               </div>
             </div>
@@ -351,72 +351,72 @@ const CompetitorForm = () => {
             {emailVerified && (
               <div className="space-y-6">
                 {/* New Company Details Section */}
-                <div className="p-4 border rounded-lg space-y-4">
-                  <h3 className="font-medium">Your Company Details</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="p-4 border rounded-lg space-y-4">
+                    <h3 className="font-medium">Your Company Details</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium mb-1">Company Name*</label>
-                      <Input
-                        value={userInfo.companyDetails.name}
-                        onChange={(e) => setUserInfo(prev => ({
-                          ...prev,
-                          companyDetails: {
-                            ...prev.companyDetails,
-                            name: e.target.value
-                          }
-                        }))}
-                        placeholder="Your company name"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Industry*</label>
-                      <Select
-                        value={userInfo.industry}
-                        onValueChange={(value) => setUserInfo(prev => ({
-                          ...prev,
-                          industry: value
-                        }))}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select industry" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {industries.map((industry) => (
-                            <SelectItem key={industry} value={industry}>
-                              {industry}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Business Description</label>
-                      <Textarea
-                        value={userInfo.companyDetails.businessDescription}
-                        onChange={(e) => setUserInfo(prev => ({
-                          ...prev,
-                          companyDetails: {
-                            ...prev.companyDetails,
-                            businessDescription: e.target.value
-                          }
-                        }))}
-                        placeholder="Brief description of your business model and main products/services"
-                      />
-                    </div>
-                  </div>
+                    <label className="block text-sm font-medium mb-1">Company Name*</label>
+                    <Input
+                    value={userInfo.companyDetails.name}
+                    onChange={(e) => setUserInfo(prev => ({
+                    ...prev,
+                  companyDetails: {
+                  ...prev.companyDetails,
+                  name: e.target.value
+                }
+                }))}
+                placeholder="Your company name"
+                />
                 </div>
+                <div>
+                <label className="block text-sm font-medium mb-1">Industry*</label>
+                <Select
+                value={userInfo.industry}
+                onValueChange={(value) => setUserInfo(prev => ({
+                ...prev,
+                industry: value
+                }))}
+                >
+              <SelectTrigger>
+              <SelectValue placeholder="Select industry" />
+              </SelectTrigger>
+              <SelectContent>
+              {industries.map((industry) => (
+              <SelectItem key={industry} value={industry}>
+              {industry}
+              </SelectItem>
+              ))}
+              </SelectContent>
+              </Select>
+              </div>
+              <div>
+              <label className="block text-sm font-medium mb-1">Business Description</label>
+              <Textarea
+              value={userInfo.companyDetails.businessDescription}
+              onChange={(e) => setUserInfo(prev => ({
+              ...prev,
+              companyDetails: {
+              ...prev.companyDetails,
+              businessDescription: e.target.value
+              }
+              }))}
+              placeholder="Brief description of your business model and main products/services"
+              />
+              </div>
+              </div>
+              </div>
 
                 <div className="p-4 border rounded-lg space-y-4">
                   <div className="flex justify-between items-center">
                     <h3 className="font-medium">Competitor Tracking</h3>
-                    <Button
+                    <Button 
                       type="button"
                       variant="outline"
                       onClick={() => setCompetitors([...competitors, { name: '', ticker: '', domain: '' }])}
                       disabled={
-                        (competitors.length + (existingTracking?.competitors?.length || 0)) >= 10 ||
-                        competitors.some(comp => !comp.name.trim() && !comp.ticker.trim() && !comp.domain.trim())
-                      }
+                           (competitors.length + (existingTracking?.competitors?.length || 0)) >= 10 ||
+                           competitors.some(comp => !comp.name.trim() && !comp.ticker.trim() && !comp.domain.trim())
+                        }
                     >
                       Add Company ({10 - (competitors.length + (existingTracking?.competitors?.length || 0))} slots remaining)
                     </Button>
@@ -424,34 +424,34 @@ const CompetitorForm = () => {
 
                   {/* Existing tracked competitors */}
                   {existingTracking?.competitors?.length > 0 && (
-                    <div className="space-y-2">
+                      <div className="space-y-2">
                       <h4 className="text-sm font-medium">Currently Tracking:</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {existingTracking.competitors.map((comp, idx) => (
-                          <div key={idx} className="p-3 bg-gray-50 rounded-md flex justify-between items-start">
-                            <div>
-                              <div className="font-medium">{comp.name} {comp.ticker && `(${comp.ticker})`}</div>
-                              <div className="text-sm text-gray-600">
-                                {comp.lastUpdate ? new Date(comp.lastUpdate).toLocaleDateString() : 'No updates yet'}
-                              </div>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                const newExisting = {
-                                  ...existingTracking,
-                                  competitors: existingTracking.competitors.filter((_, i) => i !== idx)
-                                };
-                                setExistingTracking(newExisting);
-                              }}
-                            >
-                              Remove
-                            </Button>
-                          </div>
-                        ))}
+                    {existingTracking.competitors.map((comp, idx) => (
+                      <div key={idx} className="p-3 bg-gray-50 rounded-md flex justify-between items-start">
+                      <div>
+                      <div className="font-medium">{comp.name} {comp.ticker && `(${comp.ticker})`}</div>
+                      <div className="text-sm text-gray-600">
+                    {comp.lastUpdate ? new Date(comp.lastUpdate).toLocaleDateString() : 'No updates yet'}
                       </div>
-                    </div>
+                      </div>
+                    <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => {
+                      const newExisting = {
+                     ...existingTracking,
+                    competitors: existingTracking.competitors.filter((_, i) => i !== idx)
+                  };
+                  setExistingTracking(newExisting);
+                  }}
+                  >
+                  Remove
+                  </Button>
+                  </div>
+                  ))}
+                  </div>
+                  </div>
                   )}
 
                   {/* New competitors form fields */}
@@ -459,17 +459,17 @@ const CompetitorForm = () => {
                     <div className="space-y-2">
                       <h4 className="text-sm font-medium">Add New Companies:</h4>
                       <div className="space-y-4">
-                        {competitors.map((comp, idx) => (
-                          <div key={idx} className="p-4 border rounded-md space-y-3">
-                            <div className="flex justify-between">
-                              <h5 className="font-medium">New Company #{idx + 1}</h5>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleRemoveCompetitor(idx)}
-                              >
-                                Remove
-                              </Button>
+                      {competitors.map((comp, idx) => (
+                            <div key={idx} className="p-4 border rounded-md space-y-3">
+                                <div className="flex justify-between">
+                                    <h5 className="font-medium">New Company #{idx + 1}</h5>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => handleRemoveCompetitor(idx)}
+                                    >
+                                    Remove
+                        </Button>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                               <Input
@@ -505,7 +505,7 @@ const CompetitorForm = () => {
                       </div>
                     </div>
                   )}
-
+                  
                   <Alert className="bg-blue-50 mt-4">
                     <Info className="h-4 w-4" />
                     <AlertDescription>
@@ -590,44 +590,42 @@ const CompetitorForm = () => {
                   </div>
                 </div>
 
-                {existingTracking?.documentLinks && (
-                  <div className="p-4 border rounded-lg space-y-3">
-                    <h3 className="font-medium">Your Tracking Documents</h3>
-                    <div className="space-y-2">
-                      <a
-                        href={existingTracking.documentLinks.sheetsUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
-                      >
-                        📊 View Financial Metrics Sheet
-                      </a>
-                      <a
-                        href={existingTracking.documentLinks.docsUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
-                      >
-                        📝 View Analysis Document
-                      </a>
-                    </div>
-                  </div>
-                )}
-
-                <div className="space-y-3">
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    disabled={!emailVerified}
-                  >
-                    Start Quarterly Earnings Tracking
-                  </Button>
-                  <p className="text-sm text-center text-gray-600">
-                    You'll receive a welcome email with your personalized tracking setup and document access.
-                  </p>
-                </div>
+              {existingTracking?.documentLinks && (
+                <div className="p-4 border rounded-lg space-y-3">
+                <h3 className="font-medium">Your Tracking Documents</h3>
+                <div className="space-y-2">
+              <a 
+                href={existingTracking.documentLinks.sheetsUrl} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
+              >
+              📊 View Financial Metrics Sheet
+              </a>
+              <a 
+              href={existingTracking.documentLinks.docsUrl} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
+              >
+              📝 View Analysis Document
+              </a>
               </div>
-            )}
+              </div>
+              )}
+
+            <div className="space-y-3">
+              <Button 
+                type="submit"
+                className="w-full"
+                disabled={!emailVerified}
+              >
+                Start Quarterly Earnings Tracking
+              </Button>
+              <p className="text-sm text-center text-gray-600">
+                You'll receive a welcome email with your personalized tracking setup and document access.
+              </p>
+            </div>
           </form>
         </CardContent>
       </Card>
